@@ -35,49 +35,49 @@ class Oauth2Controller < ApplicationController
 
   private
 
-    def authenticate_with_credentials(identification, password)
-      login = Login.where(identification: identification).first || LoginNotFound.new
+  def authenticate_with_credentials(identification, password)
+    login = Login.where(identification: identification).first || LoginNotFound.new
 
-      if login.authenticate(password)
-        render json: { access_token: login.oauth2_token }
-      else
-        oauth2_error('invalid_grant')
-      end
-    end
-
-    def authenticate_with_facebook(auth_code)
-      oauth2_error('no_authorization_code') && return unless auth_code.present?
-
-      login = FacebookAuthenticator.new(auth_code).authenticate!
-
+    if login.authenticate(password)
       render json: { access_token: login.oauth2_token }
-    rescue FacebookAuthenticator::ApiError
-      render nothing: true, status: 502
+    else
+      oauth2_error('invalid_grant')
     end
+  end
 
-    def authenticate_with_google(auth_code)
-      oauth2_error('no_authorization_code') && return unless auth_code.present?
+  def authenticate_with_facebook(auth_code)
+    oauth2_error('no_authorization_code') && return unless auth_code.present?
 
-      login = GoogleAuthenticator.new(auth_code).authenticate!
+    login = FacebookAuthenticator.new(auth_code).authenticate!
 
-      render json: { access_token: login.oauth2_token }
-    rescue GoogleAuthenticator::ApiError
-      render nothing: true, status: 502
-    end
+    render json: { access_token: login.oauth2_token }
+  rescue FacebookAuthenticator::ApiError
+    render nothing: true, status: 502
+  end
 
-    def authenticate_with_edx(username, auth_code)
-      oauth2_error('no_authorization_code') && return unless auth_code.present?
-      oauth2_error('no_username') && return unless username.present?
+  def authenticate_with_google(auth_code)
+    oauth2_error('no_authorization_code') && return unless auth_code.present?
 
-      login = EdxAuthenticator.new(username, auth_code).authenticate!
+    login = GoogleAuthenticator.new(auth_code).authenticate!
 
-      render json: { access_token: login.oauth2_token }
-    rescue EdxAuthenticator::ApiError
-      render nothing: true, status: 502
-    end
+    render json: { access_token: login.oauth2_token }
+  rescue GoogleAuthenticator::ApiError
+    render nothing: true, status: 502
+  end
 
-    def oauth2_error(error)
-      render json: { error: error }, status: 400
-    end
+  def authenticate_with_edx(username, auth_code)
+    oauth2_error('no_authorization_code') && return unless auth_code.present?
+    oauth2_error('no_username') && return unless username.present?
+
+    login = EdxAuthenticator.new(username, auth_code).authenticate!
+
+    render json: { access_token: login.oauth2_token }
+  rescue EdxAuthenticator::ApiError
+    render nothing: true, status: 502
+  end
+
+  def oauth2_error(error)
+    render json: { error: error }, status: 400
+  end
 
 end

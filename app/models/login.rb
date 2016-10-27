@@ -33,7 +33,7 @@ class Login < ActiveRecord::Base
     has_secure_password
   end
 
-  validates :identification, presence: true, uniqueness: true
+  validates :identification, presence: true, uniqueness: { scope: :provider }
   validates :oauth2_token, presence: true, uniqueness: true
   validates :single_use_oauth2_token, presence: true, uniqueness: true
   validates :password, length: { maximum: 72 }, confirmation: true
@@ -70,23 +70,23 @@ class Login < ActiveRecord::Base
 
   private
 
-    def password_or_uid_present
-      if password_digest.blank? && uid.blank?
-        errors.add :base, 'either password_digest or uid must be present'
-      end
+  def password_or_uid_present
+    if password_digest.blank? && uid.blank?
+      errors.add :base, 'either password_digest or uid must be present'
     end
+  end
 
-    def ensure_oauth2_token(force = false)
-      set_token = oauth2_token.blank? || force
-      self.oauth2_token = generate_token if set_token
-    end
+  def ensure_oauth2_token(force = false)
+    set_token = oauth2_token.blank? || force
+    self.oauth2_token = generate_token if set_token
+  end
 
-    def assign_single_use_oauth2_token
-      self.single_use_oauth2_token = generate_token
-    end
+  def assign_single_use_oauth2_token
+    self.single_use_oauth2_token = generate_token
+  end
 
-    def generate_token
-      SecureRandom.hex(125)
-    end
+  def generate_token
+    SecureRandom.hex(125)
+  end
 
 end
