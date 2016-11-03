@@ -107,6 +107,10 @@ module RailsApiAuth
           head 401
         end
 
+        def authenticate(*)
+          @current_login = Login.where(oauth2_token: bearer_token).first
+        end
+
         def consume_single_use_oauth2_token!
           @current_login = Login.where(single_use_oauth2_token: bearer_token).first!
           @current_login.refresh_single_use_oauth2_token!
