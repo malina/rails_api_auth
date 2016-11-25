@@ -24,7 +24,7 @@ class Login < ActiveRecord::Base
   class InvalidOAuth2Token < StandardError; end
 
   if RailsApiAuth.user_model_relation
-    belongs_to RailsApiAuth.user_model_relation, foreign_key: :user_id
+    belongs_to RailsApiAuth.user_model_relation, foreign_key: :user_id, optional: true
   end
 
   if Rails::VERSION::MAJOR >= 4
